@@ -27,11 +27,9 @@ public class LocationManager_check {
         if (networkIsEnabled == true && gpsIsEnabled == true) {
             locationServiceBoolean = true;
             providerType = 1;
-
         } else if (networkIsEnabled != true && gpsIsEnabled == true) {
             locationServiceBoolean = true;
             providerType = 2;
-
         } else if (networkIsEnabled == true && gpsIsEnabled != true) {
             locationServiceBoolean = true;
             providerType = 1;
