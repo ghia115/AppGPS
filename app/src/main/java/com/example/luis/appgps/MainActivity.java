@@ -2,14 +2,18 @@ package com.example.luis.appgps;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.app.AlertDialog;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity implements OnClickListener{
@@ -17,6 +21,7 @@ public class MainActivity extends Activity implements OnClickListener{
     TextView tv;
     Button b;
     LocationManager mlocManager;
+    AlertDialog alert = null;
 
 
     @Override
@@ -28,6 +33,7 @@ public class MainActivity extends Activity implements OnClickListener{
         b = (Button) findViewById(R.id.buttonGetLocation);
         b.setOnClickListener(this);
 
+        /*mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         LocationManager_check locationManagerCheck = new LocationManager_check(this);
         Location location = null;
 
@@ -38,8 +44,13 @@ public class MainActivity extends Activity implements OnClickListener{
             else if (locationManagerCheck.getProviderType() == 2)
                 location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }else{
-            locationManagerCheck.createLocationServiceError(MainActivity.this);
+            locationManagerCheck .createLocationServiceError(MainActivity.this);
         }
+
+        if (!mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertNoGps();
+        }*/
+
 
     }
 
@@ -83,11 +94,36 @@ public class MainActivity extends Activity implements OnClickListener{
 
         Location lastLocation = mlocManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        String locationInfo = "Location: " +
-                "\nlatitude = " + lastLocation.getLatitude() +
-                "\nlongitude = " + lastLocation.getLongitude();
+        if (lastLocation == null) {
+            //Toast.makeText(getApplicationContext(), "Enciende el GPS", Toast.LENGTH_LONG).show();
+            if (!mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                AlertNoGps();
+            }
+        }else {
+            String locationInfo = "Location: " +
+                    "\nlatitude = " + lastLocation.getLatitude() +
+                    "\nlongitude = " + lastLocation.getLongitude();
 
-        tv.setText(locationInfo);
+            tv.setText(locationInfo);
 
+        }
+    }
+
+    private void AlertNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("El sistema GPS esta desactivado, ¿Desea activarlo?")
+                .setCancelable(false)
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        alert = builder.create();
+        alert.show();
     }
 }/* End of UseGps Activity */
